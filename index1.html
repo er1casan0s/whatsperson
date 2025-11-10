@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What's Person? - Descubra sua personalidade</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👤</text></svg>">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Reset e configurações básicas */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Paleta de cores terapêuticas atualizada */
+        :root {
+            --cor-primaria: #8EC5B6; /* Verde suave */
+            --cor-secundaria: #B8D8D8; /* Azul claro */
+            --cor-destaque: #7A9E9F; /* Azul esverdeado */
+            --cor-texto: #4F6367; /* Cinza azulado */
+            --cor-fundo: #F9FBFB; /* Branco suave */
+            --cor-branco: #FFFFFF;
+            --cor-sombra: rgba(126, 158, 159, 0.15);
+            --cor-erro: #FF6B6B;
+            --cor-sucesso: #7EC5B6;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            color: var(--cor-texto);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Container principal */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Tela de entrada */
+        .tela {
+            background-color: var(--cor-branco);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px var(--cor-sombra);
+            text-align: center;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tela.ativa {
+            display: block;
+        }
+
+        /* Cabeçalho */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            color: var(--cor-destaque);
+        }
+
+        h1 {
+            color: var(--cor-destaque);
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .subtitulo {
+            color: var(--cor-texto);
+            font-size: 1.3rem;
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Formulários */
+        .form-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--cor-destaque);
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid var(--cor-secundaria);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background-color: #f9fbfb;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--cor-destaque);
+            box-shadow: 0 0 0 3px rgba(122, 158, 159, 0.2);
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--cor-destaque);
+        }
+
+        .erro {
+            color: var(--cor-erro);
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        /* Botões */
+        .btn {
+            background: linear-gradient(to right, var(--cor-destaque), var(--cor-primaria));
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(122, 158, 159, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(122, 158, 159, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Área de seleção de imagens */
+        .selecao-imagens {
+            display: flex;
+            justify-content: space-between;
+            gap: 25px;
+            margin: 40px 0;
+        }
+
+        .opcao-imagem {
+            flex: 1;
+            cursor: pointer;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+            box-shadow: 0 5px 15px var(--cor-sombra);
+        }
+
+        .opcao-imagem:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .opcao-imagem.selecionada {
+            border-color: var(--cor-destaque);
+            box-shadow: 0 8px 20px rgba(122, 158, 159, 0.4);
+        }
+
+        .opcao-imagem img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .legenda-imagem {
+            padding: 15px;
+            background-color: var(--cor-branco);
+            text-align: center;
+            font-weight: 600;
+            color: var(--cor-destaque);
+        }
+
+        /* Barra de progresso */
+        .barra-progresso-container {
+            margin: 30px 0;
+        }
+
+        .barra-progresso-texto {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--cor-destaque);
+        }
+
+        .barra-progresso {
+            height: 10px;
+            background-color: var(--cor-secundaria);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progresso {
+            height: 100%;
+            background: linear-gradient(to right, var(--cor-primaria), var(--cor-destaque));
+            width: 0%;
+            transition: width 0.5s;
+            border-radius: 5px;
+        }
+
+        /* Resultado */
+        .resultado {
+            text-align: left;
+            background: #f9fbfb;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .tipo-personalidade {
+            color: var(--cor-destaque);
+            font-size: 2rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .descricao-personalidade {
+            margin-bottom: 20px;
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        /* Sobre nós */
+        .sobre-conteudo {
+            text-align: left;
+            background: #f9fbfb;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .sobre-conteudo h2 {
+            color: var(--cor-destaque);
+            margin-bottom: 15px;
+        }
+
+        .sobre-conteudo p {
+            margin-bottom: 15px;
+            line-height: 1.7;
+        }
+
+        /* Rodapé */
+        footer {
+            background: linear-gradient(to right, var(--cor-destaque), var(--cor-primaria));
+            color: white;
+            text-align: center;
+            padding: 25px;
+            margin-top: 40px;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-content p {
+            margin: 5px 0;
+        }
+
+        /* Controles de música */
+        .controles-musica {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: var(--cor-branco);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px var(--cor-sombra);
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.3s;
+        }
+
+        .controles-musica:hover {
+            transform: scale(1.1);
+        }
+
+        .controles-musica i {
+            font-size: 1.8rem;
+            color: var(--cor-destaque);
+        }
+
+        /* Botões de ação */
+        .botoes-acao {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        /* Loader para imagens */
+        .loader {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 250px;
+            background-color: var(--cor-secundaria);
+        }
+
+        .loader-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--cor-destaque);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .tela {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .selecao-imagens {
+                flex-direction: column;
+            }
+            
+            .botoes-acao {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Áudio para música de fundo com fonte alternativa -->
+    <audio id="musica-fundo" loop>
+        <source src="https://cdn.pixabay.com/download/audio/2022/02/22/audio_d17113f8c5.mp3?filename=relaxing-calm-and-soothing-piano-ambient-version-60s-12532.mp3" type="audio/mpeg">
+        Seu navegador não suporta o elemento de áudio.
+    </audio>
+
+    <!-- Controle de música -->
+    <div class="controles-musica" id="controle-musica">
+        <i class="fas fa-volume-up"></i>
+    </div>
+
+    <!-- Container principal -->
+    <div class="container">
+        <!-- Tela de entrada -->
+        <div id="tela-entrada" class="tela ativa">
+            <header>
+                <div class="logo">👤</div>
+                <h1>What's Person?</h1>
+                <p class="subtitulo">Descubra sua personalidade através de escolhas visuais e receba um relatório detalhado por e-mail</p>
+            </header>
+            
+            <div class="form-group">
+                <label for="email">Digite seu e-mail para receber o relatório final:</label>
+                <div class="input-container">
+                    <input type="email" id="email" placeholder="seu.email@exemplo.com">
+                    <div class="input-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                </div>
+                <div id="erro-email" class="erro">
+                    <i class="fas fa-exclamation-circle"></i> Por favor, insira um e-mail válido com um domínio correto.
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="nome">Como gostaria de ser chamado(a)?</label>
+                <div class="input-container">
+                    <input type="text" id="nome" placeholder="Seu nome ou apelido">
+                    <div class="input-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="btn-iniciar" class="btn">Iniciar Teste</button>
+        </div>
+
+        <!-- Tela de seleção de imagens -->
+        <div id="tela-selecao" class="tela">
+            <header>
+                <h2 id="pergunta-atual">Escolha a imagem que mais representa você:</h2>
+            </header>
+            
+            <div class="barra-progresso-container">
+                <div class="barra-progresso-texto">
+                    <span>Progresso</span>
+                    <span id="progresso-texto">0/15</span>
+                </div>
+                <div class="barra-progresso">
+                    <div id="progresso" class="progresso"></div>
+                </div>
+            </div>
+            
+            <div class="selecao-imagens">
+                <div class="opcao-imagem" data-opcao="1">
+                    <div id="loader-1" class="loader">
+                        <div class="loader-spinner"></div>
+                    </div>
+                    <img id="img-opcao-1" src="" alt="Opção 1" style="display: none;">
+                    <div class="legenda-imagem">Opção 1</div>
+                </div>
+                <div class="opcao-imagem" data-opcao="2">
+                    <div id="loader-2" class="loader">
+                        <div class="loader-spinner"></div>
+                    </div>
+                    <img id="img-opcao-2" src="" alt="Opção 2" style="display: none;">
+                    <div class="legenda-imagem">Opção 2</div>
+                </div>
+            </div>
+            
+            <button id="btn-proximo" class="btn" disabled>Próxima</button>
+        </div>
+
+        <!-- Tela de resultados -->
+        <div id="tela-resultado" class="tela">
+            <header>
+                <h1>Seu Resultado</h1>
+                <p class="subtitulo" id="subtitulo-resultado">Olá, <span id="nome-usuario"></span>! Aqui está sua análise de personalidade</p>
+            </header>
+            
+            <div class="resultado">
+                <h2 class="tipo-personalidade" id="tipo-personalidade">Tipo de Personalidade</h2>
+                <p class="descricao-personalidade" id="descricao-personalidade">Descrição da personalidade baseada nas suas escolhas.</p>
+            </div>
+            
+            <div class="botoes-acao">
+                <button id="btn-sobre-nos" class="btn">Sobre Nós</button>
+                <button id="btn-refazer" class="btn">Fazer Teste Novamente</button>
+            </div>
+        </div>
+
+        <!-- Tela Sobre Nós -->
+        <div id="tela-sobre-nos" class="tela">
+            <header>
+                <h1>Sobre Nós</h1>
+            </header>
+            
+            <div class="sobre-conteudo">
+                <h2>O Projeto "What's Person?"</h2>
+                <p>O "What's Person?" é um projeto acadêmico desenvolvido para explorar como escolhas visuais podem refletir aspectos da personalidade humana.</p>
+                
+                <p>Baseado em princípios da psicologia das cores e testes projetivos, este jogo oferece uma experiência interativa que permite aos usuários descobrirem mais sobre si mesmos através de seleções intuitivas entre imagens.</p>
+                
+                <p>As análises fornecidas são baseadas em teorias psicológicas consolidadas e oferecem insights valiosos sobre diferentes traços de personalidade, sempre com uma abordagem positiva e construtiva.</p>
+                
+                <p>Este projeto foi desenvolvido com foco em proporcionar uma experiência relaxante e reflexiva, utilizando cores terapêuticas e elementos visuais que transmitem paz e serenidade.</p>
+            </div>
+            
+            <button id="btn-voltar-inicio" class="btn">Voltar ao Início</button>
+        </div>
+    </div>
+
+    <!-- Rodapé -->
+    <footer>
+        <div class="footer-content">
+            <p>Desenvolvido por Erica Santos, graduanda em Pedagogia, Natal-RN</p>
+            <p>Projeto acadêmico para fins educacionais</p>
+        </div>
+    </footer>
+
+    <script>
+        // Variáveis globais
+        let nomeUsuario = '';
+        let emailUsuario = '';
+        let escolhas = [];
+        let rodadaAtual = 0;
+        const totalRodadas = 15;
+        
+        // Elementos DOM
+        const telaEntrada = document.getElementById('tela-entrada');
+        const telaSelecao = document.getElementById('tela-selecao');
+        const telaResultado = document.getElementById('tela-resultado');
+        const telaSobreNos = document.getElementById('tela-sobre-nos');
+        const btnIniciar = document.getElementById('btn-iniciar');
+        const btnProximo = document.getElementById('btn-proximo');
+        const btnRefazer = document.getElementById('btn-refazer');
+        const btnSobreNos = document.getElementById('btn-sobre-nos');
+        const btnVoltarInicio = document.getElementById('btn-voltar-inicio');
+        const progresso = document.getElementById('progresso');
+        const progressoTexto = document.getElementById('progresso-texto');
+        const perguntaAtual = document.getElementById('pergunta-atual');
+        const nomeUsuarioSpan = document.getElementById('nome-usuario');
+        const tipoPersonalidade = document.getElementById('tipo-personalidade');
+        const descricaoPersonalidade = document.getElementById('descricao-personalidade');
+        const opcoesImagem = document.querySelectorAll('.opcao-imagem');
+        const imgOpcao1 = document.getElementById('img-opcao-1');
+        const imgOpcao2 = document.getElementById('img-opcao-2');
+        const loader1 = document.getElementById('loader-1');
+        const loader2 = document.getElementById('loader-2');
+        const musicaFundo = document.getElementById('musica-fundo');
+        const controleMusica = document.getElementById('controle-musica');
+        const emailInput = document.getElementById('email');
+        const erroEmail = document.getElementById('erro-email');
+        
+        // Banco de imagens temáticas funcionais com URLs verificadas
+        const bancoImagens = {
+            energia: [
+                'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80', // Sol nascendo
+                'https://images.unsplash.com/photo-1505142468610-359e7d316be0?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'  // Cachoeira
+            ],
+            espirito: [
+                'https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80', // Paisagem serena
+                'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'  // Céu tempestuoso
+            ],
+            emocao: [
+                'https://images.unsplash.com/photo-1534447677768-be436bb09401?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80', // Cores vibrantes
+                'https://images.unsplash.com/photo-1550684376-efcbd6e3f031?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'  // Tons suaves
+            ],
+            objetivos: [
+                'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80', // Estrada
+                'https://images.unsplash.com/photo-1542272201-b1ca555ef850?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'  // Escada
+            ],
+            desafios: [
+                'https://images.unsplash.com/photo-1464822759844-d2dd4518495a?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80', // Montanha
+                'https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'  // Labirinto
+            ],
+            criatividade: [
+                'https://images.unsplash.com/photo-1541961017774-22349e4a1262?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80', // Arte colorida
+                'https://images.unsplash.com/photo-1544787219-7f47ccb76574?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'  // Escultura
+            ],
+            social: [
+                'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80', // Grupo de pessoas
+                'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'  // Pessoa sozinha
+            ],
+            interior: [
+                'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80', // Meditação
+                'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'  // Espelho d'água
+            ],
+            relaxar: [
+                'https://images.unsplash.com/photo-1418065460487-3e41a6c84dc5?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80', // Floresta
+                'https://images.unsplash.com/photo-1476673160081-cf065607f449?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'  // Praia
+            ],
+            futuro: [
+                'https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80', // Horizonte
+                'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'  // Universo
+            ],
+            expressao: [
+                'https://images.unsplash.com/photo-1541701494587-cb58502866ab?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80', // Pincéis
+                'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'  // Instrumento musical
+            ],
+            valores: [
+                'https://images.unsplash.com/photo-1519457431-44ccd64a579b?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80', // Mãos unidas
+                'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'  // Livro aberto
+            ],
+            resiliencia: [
+                'https://images.unsplash.com/photo-1550684376-efcbd6e3f031?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80', // Árvore no deserto
+                'https://images.unsplash.com/photo-1464822759844-d2d2b4518495?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'  // Flor no concreto
+            ],
+            intuicao: [
+                'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80', // Olho
+                'https://images.unsplash.com/photo-1418065460487-3e41a6c84dc5?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'  // Caminho na floresta
+            ],
+            essencia: [
+                'https://images.unsplash.com/photo-1501854140801-50d01698950b?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80', // Paisagem natural
+                'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'  // Céu estrelado
+            ]
+        };
+        
+        // Perguntas para cada rodada
+        const perguntas = [
+            "Qual imagem representa melhor sua energia?",
+            "Qual imagem reflete seu estado de espírito atual?",
+            "Qual imagem você se conecta mais emocionalmente?",
+            "Qual imagem representa seus objetivos?",
+            "Qual imagem reflete sua abordagem aos desafios?",
+            "Qual imagem representa sua criatividade?",
+            "Qual imagem reflete sua personalidade social?",
+            "Qual imagem representa sua busca interior?",
+            "Qual imagem reflete sua forma de relaxar?",
+            "Qual imagem representa sua visão de futuro?",
+            "Qual imagem reflete sua forma de expressão?",
+            "Qual imagem representa seus valores?",
+            "Qual imagem reflete sua resiliência?",
+            "Qual imagem representa sua intuição?",
+            "Qual imagem reflete sua essência?"
+        ];
+        
+        // Chaves para o banco de imagens
+        const chavesImagens = [
+            "energia", "espirito", "emocao", "objetivos", "desafios", 
+            "criatividade", "social", "interior", "relaxar", "futuro",
+            "expressao", "valores", "resiliencia", "intuicao", "essencia"
+        ];
+        
+        // Tipos de personalidade e descrições
+        const tiposPersonalidade = {
+            "Explorador Criativo": {
+                descricao: "Você é uma pessoa curiosa e inovadora, sempre em busca de novas experiências e formas de expressão. Sua mente está constantemente gerando ideias originais e você valoriza a liberdade para explorar diferentes caminhos. Sua criatividade é sua maior força, permitindo que você encontre soluções únicas para os desafios que enfrenta."
+            },
+            "Guarda Sensível": {
+                descricao: "Você possui uma grande empatia e sensibilidade em relação aos outros. Sua capacidade de compreender as emoções alheias faz de você um excelente ouvinte e conselheiro. Você valoriza relacionamentos profundos e autênticos, e sua intuição geralmente guia suas decisões de maneira acertada."
+            },
+            "Estrategista Racional": {
+                descricao: "Sua mente analítica e lógica é sua principal ferramenta para navegar pelo mundo. Você prefere basear suas decisões em fatos e dados concretos, e tem uma habilidade notável para identificar padrões e estruturas complexas. Sua abordagem metódica garante que você quase sempre tome as decisões mais sensatas."
+            },
+            "Visionário Inspirador": {
+                descricao: "Você tem uma capacidade única de enxergar possibilidades onde outros veem limites. Sua mente está sempre projetando futuros melhores e inspirando os outros a compartilhar sua visão. Sua energia contagiante e otimismo natural fazem de você um líder nato em qualquer área que escolha atuar."
+            },
+            "Equilibrador Harmonioso": {
+                descricao: "Sua maior qualidade é a busca constante pelo equilíbrio em todas as áreas da vida. Você valoriza a paz, a estabilidade e a harmonia, e tem uma habilidade natural para mediar conflitos e encontrar pontos em comum entre perspectivas opostas. Sua serenidade é um refúgio para aqueles ao seu redor."
+            }
+        };
+        
+        // Inicialização do jogo
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar eventos
+            btnIniciar.addEventListener('click', iniciarTeste);
+            btnProximo.addEventListener('click', proximaRodada);
+            btnRefazer.addEventListener('click', reiniciarTeste);
+            btnSobreNos.addEventListener('click', mostrarSobreNos);
+            btnVoltarInicio.addEventListener('click', voltarInicio);
+            controleMusica.addEventListener('click', toggleMusica);
+            emailInput.addEventListener('input', validarEmail);
+            
+            // Configurar seleção de imagens
+            opcoesImagem.forEach(opcao => {
+                opcao.addEventListener('click', function() {
+                    // Remover seleção anterior
+                    opcoesImagem.forEach(o => o.classList.remove('selecionada'));
+                    
+                    // Selecionar nova opção
+                    this.classList.add('selecionada');
+                    
+                    // Habilitar botão próximo
+                    btnProximo.disabled = false;
+                });
+            });
+            
+            // Tentar reproduzir música de fundo (requer interação do usuário em alguns navegadores)
+            document.body.addEventListener('click', function() {
+                if (musicaFundo.paused) {
+                    musicaFundo.play().catch(e => {
+                        console.log("Reprodução automática bloqueada:", e);
+                        // Tentar com uma fonte alternativa se a primeira falhar
+                        musicaFundo.src = "https://cdn.pixabay.com/download/audio/2021/10/25/audio_0d0d8a97c2.mp3?filename=peaceful-piano-123342.mp3";
+                        musicaFundo.play().catch(e2 => {
+                            console.log("Segunda tentativa de reprodução falhou:", e2);
+                        });
+                    });
+                }
+            }, { once: true });
+        });
+        
+        // Função para validar e-mail
+        function validarEmail() {
+            const email = emailInput.value;
+            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (regex.test(email)) {
+                erroEmail.style.display = 'none';
+                emailInput.style.borderColor = 'var(--cor-sucesso)';
+                return true;
+            } else {
+                erroEmail.style.display = 'block';
+                emailInput.style.borderColor = 'var(--cor-erro)';
+                return false;
+            }
+        }
+        
+        // Função para iniciar o teste
+        function iniciarTeste() {
+            // Validar entrada do usuário
+            const email = document.getElementById('email').value;
+            const nome = document.getElementById('nome').value;
+            
+            if (!email || !nome) {
+                alert('Por favor, preencha todos os campos antes de iniciar o teste.');
+                return;
+            }
+            
+            // Validar e-mail
+            if (!validarEmail()) {
+                return;
+            }
+            
+            // Salvar informações do usuário
+            emailUsuario = email;
+            nomeUsuario = nome;
+            
+            // Iniciar primeira rodada
+            rodadaAtual = 0;
+            escolhas = [];
+            atualizarTelaSelecao();
+            
+            // Alternar para tela de seleção
+            telaEntrada.classList.remove('ativa');
+            telaSelecao.classList.add('ativa');
+        }
+        
+        // Função para atualizar a tela de seleção
+        function atualizarTelaSelecao() {
+            // Atualizar pergunta
+            perguntaAtual.textContent = perguntas[rodadaAtual];
+            
+            // Atualizar barra de progresso
+            const progressoPercentual = (rodadaAtual / totalRodadas) * 100;
+            progresso.style.width = `${progressoPercentual}%`;
+            progressoTexto.textContent = `${rodadaAtual}/${totalRodadas}`;
+            
+            // Selecionar imagens temáticas do banco
+            const chave = chavesImagens[rodadaAtual];
+            const imagens = bancoImagens[chave];
+            
+            // Resetar seleção
+            opcoesImagem.forEach(opcao => opcao.classList.remove('selecionada'));
+            btnProximo.disabled = true;
+            
+            // Mostrar loaders
+            loader1.style.display = 'flex';
+            loader2.style.display = 'flex';
+            imgOpcao1.style.display = 'none';
+            imgOpcao2.style.display = 'none';
+            
+            // Carregar imagens com tratamento de erro
+            carregarImagem(imagens[0], imgOpcao1, loader1);
+            carregarImagem(imagens[1], imgOpcao2, loader2);
+        }
+        
+        // Função para carregar imagens com tratamento de erro
+        function carregarImagem(url, elementoImg, loader) {
+            const img = new Image();
+            img.onload = function() {
+                elementoImg.src = url;
+                elementoImg.style.display = 'block';
+                loader.style.display = 'none';
+            };
+            img.onerror = function() {
+                // Se a imagem não carregar, usar uma imagem placeholder
+                elementoImg.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAwIiBoZWlnaHQ9IjI1MCIgdmlld0JveD0iMCAwIDUwMCAyNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MDAiIGhlaWdodD0iMjUwIiBmaWxsPSIjQjhEOEQ4Ii8+Cjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjN0E5RTlGIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjAiPkltYWdlbSBuw6NvIGNhcnJlZ2FkYTwvdGV4dD4KPC9zdmc+';
+                elementoImg.style.display = 'block';
+                loader.style.display = 'none';
+            };
+            img.src = url;
+        }
+        
+        // Função para avançar para a próxima rodada
+        function proximaRodada() {
+            // Salvar escolha do usuário
+            const opcaoSelecionada = document.querySelector('.opcao-imagem.selecionada');
+            if (opcaoSelecionada) {
+                escolhas.push(parseInt(opcaoSelecionada.dataset.opcao));
+            }
+            
+            // Avançar rodada
+            rodadaAtual++;
+            
+            // Verificar se é a última rodada
+            if (rodadaAtual >= totalRodadas) {
+                finalizarTeste();
+            } else {
+                atualizarTelaSelecao();
+            }
+        }
+        
+        // Função para finalizar o teste e mostrar resultados
+        function finalizarTeste() {
+            // Calcular tipo de personalidade baseado nas escolhas
+            const tipo = calcularTipoPersonalidade();
+            
+            // Atualizar tela de resultado
+            nomeUsuarioSpan.textContent = nomeUsuario;
+            tipoPersonalidade.textContent = tipo;
+            descricaoPersonalidade.textContent = tiposPersonalidade[tipo].descricao;
+            
+            // Alternar para tela de resultado
+            telaSelecao.classList.remove('ativa');
+            telaResultado.classList.add('ativa');
+            
+            // Enviar resultado por e-mail (simulação)
+            console.log(`Resultado enviado para ${emailUsuario}: ${tipo}`);
+        }
+        
+        // Função para calcular o tipo de personalidade baseado nas escolhas
+        function calcularTipoPersonalidade() {
+            // Simulação de algoritmo de análise
+            // Em um projeto real, isso seria baseado em critérios psicológicos específicos
+            
+            // Contar escolhas da opção 1 vs opção 2
+            let contadorOpcao1 = 0;
+            let contadorOpcao2 = 0;
+            
+            escolhas.forEach(escolha => {
+                if (escolha === 1) contadorOpcao1++;
+                else contadorOpcao2++;
+            });
+            
+            // Determinar tipo baseado no padrão de escolhas
+            const diferenca = Math.abs(contadorOpcao1 - contadorOpcao2);
+            
+            if (diferenca <= 3) {
+                return "Equilibrador Harmonioso";
+            } else if (contadorOpcao1 > contadorOpcao2) {
+                // Baseado no padrão de escolhas, determinar entre os tipos
+                const padrao = escolhas.slice(0, 5).reduce((a, b) => a + b, 0);
+                if (padrao <= 7) return "Explorador Criativo";
+                else return "Visionário Inspirador";
+            } else {
+                const padrao = escolhas.slice(0, 5).reduce((a, b) => a + b, 0);
+                if (padrao <= 7) return "Guarda Sensível";
+                else return "Estrategista Racional";
+            }
+        }
+        
+        // Função para reiniciar o teste
+        function reiniciarTeste() {
+            telaResultado.classList.remove('ativa');
+            telaEntrada.classList.add('ativa');
+        }
+        
+        // Função para mostrar a tela "Sobre Nós"
+        function mostrarSobreNos() {
+            telaResultado.classList.remove('ativa');
+            telaSobreNos.classList.add('ativa');
+        }
+        
+        // Função para voltar ao início
+        function voltarInicio() {
+            telaSobreNos.classList.remove('ativa');
+            telaEntrada.classList.add('ativa');
+        }
+        
+        // Função para controlar a música de fundo
+        function toggleMusica() {
+            if (musicaFundo.paused) {
+                musicaFundo.play().then(() => {
+                    controleMusica.innerHTML = '<i class="fas fa-volume-up"></i>';
+                }).catch(e => {
+                    console.log("Erro ao reproduzir música:", e);
+                    // Tentar com uma fonte alternativa
+                    musicaFundo.src = "https://cdn.pixabay.com/download/audio/2021/10/25/audio_0d0d8a97c2.mp3?filename=peaceful-piano-123342.mp3";
+                    musicaFundo.play().then(() => {
+                        controleMusica.innerHTML = '<i class="fas fa-volume-up"></i>';
+                    }).catch(e2 => {
+                        console.log("Segunda tentativa de reprodução falhou:", e2);
+                        alert("Não foi possível reproduzir a música de fundo. Verifique suas permissões de áudio.");
+                    });
+                });
+            } else {
+                musicaFundo.pause();
+                controleMusica.innerHTML = '<i class="fas fa-volume-mute"></i>';
+            }
+        }
+    </script>
+</body>
+</html>

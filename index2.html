@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>What's Person? — teste de personalidade visual</title>
+
+  <!-- Favicon: SVG com emoji de pessoa 👤 (data URL) -->
+  <link rel="icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="86" font-size="90">👤</text></svg>'>
+
+  <!-- Estilo — cores terapêuticas (pastel azul / verde) e layout responsivo -->
+  <style>
+    /* ===== Paleta / variáveis ===== */
+    :root{
+      --bg: #f3fbfb;           /* fundo suave */
+      --card: #ffffff;         /* cards brancos */
+      --accent: #7fc3b3;       /* verde-água */
+      --accent-2: #8fbfe6;     /* azul suave */
+      --muted: #6b7885;        /* texto secundário */
+      --primary-text: #0f2437;
+      --glass: rgba(255,255,255,0.7);
+      --shadow: 0 8px 24px rgba(15,36,55,0.08);
+      --radius: 14px;
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    /* ===== Layout ===== */
+    html,body{height:100%; margin:0; background: linear-gradient(180deg,var(--bg), #eef8f7); color:var(--primary-text);}
+    .container{max-width:980px; margin:32px auto; padding:24px; display:flex; gap:24px; flex-direction:column; align-items:center;}
+    header{display:flex; align-items:center; gap:12px; width:100%; justify-content:center;}
+    header h1{margin:0; font-size:28px;}
+    .card{background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:20px; width:100%;}
+
+    /* ===== Tela inicial (email + nome) ===== */
+    .start-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+    label{font-size:14px; color:var(--muted); display:block; margin-bottom:6px;}
+    input[type="email"], input[type="text"]{
+      width:100%; padding:12px 14px; border-radius:10px; border:1px solid #e6eef0; background:linear-gradient(180deg,#fff,#fbfeff);
+      font-size:16px; box-sizing:border-box;
+    }
+    .btn{background:linear-gradient(90deg,var(--accent),var(--accent-2)); color:white; padding:12px 16px; border-radius:12px; border:0; cursor:pointer; font-weight:600;}
+    .muted{color:var(--muted); font-size:13px;}
+
+    /* ===== Game area ===== */
+    .game-area{display:flex; flex-direction:column; gap:18px; align-items:center;}
+    .progress{width:100%; height:10px; background:#eaf6f5; border-radius:999px; overflow:hidden;}
+    .progress > .bar{height:100%; background:linear-gradient(90deg,var(--accent),var(--accent-2)); width:0%; transition:width .4s ease;}
+    .choices{display:flex; gap:18px; width:100%; justify-content:center; flex-wrap:wrap;}
+    .choice{flex:1 1 320px; max-width:420px; border-radius:12px; overflow:hidden; cursor:pointer; display:flex; flex-direction:column; align-items:stretch; text-align:center; transition:transform .18s ease, box-shadow .18s ease;}
+    .choice img{width:100%; height:320px; object-fit:cover; display:block;}
+    .choice .caption{padding:12px; background:var(--glass); text-align:center;}
+    .choice:hover{transform:translateY(-6px); box-shadow:0 18px 40px rgba(15,36,55,0.08);}
+
+    /* ===== Result area ===== */
+    .result {text-align:left;}
+    .result h2{margin-top:0;}
+    .tags{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;}
+    .tag{background:#eff9f6; padding:6px 10px; border-radius:999px; color:var(--primary-text); font-weight:600; font-size:13px;}
+
+    /* ===== Footer ===== */
+    footer{width:100%; margin-top:18px; padding:12px 20px; border-radius:12px; background:linear-gradient(90deg,rgba(127,195,179,0.12),rgba(143,191,230,0.08)); display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;}
+    .small{font-size:13px; color:var(--muted);}
+
+    /* ===== Mobile tweaks ===== */
+    @media (max-width:720px){
+      .start-grid{grid-template-columns:1fr;}
+      .choice img{height:220px;}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <!-- Ícone grande com 👤 e título -->
+      <div style="font-size:40px; background:linear-gradient(90deg,var(--accent),var(--accent-2)); color:white; padding:10px; border-radius:10px;">👤</div>
+      <div style="text-align:left">
+        <h1>What's Person?</h1>
+        <div class="muted">Um jogo visual de personalidade — escolha imagens e descubra seu perfil</div>
+      </div>
+    </header>
+
+    <!-- === Card principal === -->
+    <main class="card" id="app">
+
+      <!-- TELA INICIAL -->
+      <section id="startScreen">
+        <h2>Antes de começar</h2>
+        <p class="muted">Insira seu e-mail para receber o relatório final (opcional) e diga como quer ser chamado(a).</p>
+
+        <div class="start-grid" style="margin-top:10px;">
+          <div>
+            <label for="email">E-mail (relatório)</label>
+            <input id="email" type="email" placeholder="seu@exemplo.com" />
+            <div class="muted" style="margin-top:6px;">Não é obrigatório — você pode optar por enviar depois.</div>
+          </div>
+
+          <div>
+            <label for="displayName">Como quer ser chamado(a)?</label>
+            <input id="displayName" type="text" placeholder="Ex: Ana, João, Dr. Pedro..." />
+          </div>
+        </div>
+
+        <div style="display:flex; gap:12px; margin-top:16px; align-items:center;">
+          <button class="btn" id="startBtn">Começar teste</button>
+          <button id="previewBtn" class="btn" style="background:transparent; color:var(--accent); border:1px solid var(--accent);">Ver Sobre nós</button>
+        </div>
+
+        <p class="muted" style="margin-top:12px;">O teste terá 15 escolhas. Leva ~5 minutos. As imagens são apresentadas aleatoriamente.</p>
+      </section>
+
+      <!-- ÁREA DO JOGO -->
+      <section id="gameScreen" style="display:none;">
+        <div style="width:100%; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <strong id="greet">Olá!</strong>
+            <div class="muted" id="roundText">Escolha a sua imagem preferida</div>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button id="pauseMusic" class="btn" style="background:transparent; color:var(--accent); border:1px solid var(--accent);">Pause música</button>
+            <div class="muted">Rodada <span id="roundNum">1</span>/15</div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px;">
+          <div class="progress"><div class="bar" id="progressBar"></div></div>
+        </div>
+
+        <div class="game-area" style="margin-top:18px;">
+          <div class="choices" id="choicesContainer">
+            <!-- escolhas serão injetadas aqui -->
+          </div>
+
+          <div class="muted" style="font-size:13px; text-align:center; margin-top:8px;">Clique na imagem que mais chama sua atenção — não pense demais.</div>
+        </div>
+      </section>
+
+      <!-- RESULTADO -->
+      <section id="resultScreen" style="display:none;">
+        <div class="result">
+          <h2>Resultado</h2>
+          <p id="resultSummary" class="muted">Analisando suas escolhas...</p>
+
+          <div style="margin-top:12px;">
+            <strong>Traços predominantes</strong>
+            <div class="tags" id="resultTags"></div>
+          </div>
+
+          <div style="margin-top:18px; display:flex; gap:12px; flex-wrap:wrap;">
+            <button id="sendEmailBtn" class="btn">Enviar relatório por e-mail</button>
+            <button id="downloadBtn" class="btn" style="background:transparent; color:var(--accent); border:1px solid var(--accent);">Baixar relatório (TXT)</button>
+            <button id="retryBtn" class="btn" style="background:transparent; color:var(--accent); border:1px solid var(--accent);">Refazer teste</button>
+            <button id="aboutBtn" class="btn" style="background:transparent; color:var(--accent); border:1px solid var(--accent);">Sobre nós</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SOBRE NÓS (modal simples) -->
+      <section id="aboutModal" style="display:none; margin-top:14px;">
+        <div style="padding:12px; border-radius:10px; background:linear-gradient(90deg,#ffffff, #fbffff); box-shadow:var(--shadow);">
+          <h3>Sobre nós</h3>
+          <p class="muted" id="aboutText">
+            <!-- Texto injetado via JS -->
+          </p>
+          <div style="display:flex; gap:8px; margin-top:8px;">
+            <button id="closeAbout" class="btn" style="background:transparent; color:var(--accent); border:1px solid var(--accent);">Fechar</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer com seus dados (Erica Santos, etc) -->
+    <footer>
+      <div class="small">Feito por Erica Santos — Graduanda em Pedagogia · Natal, RN</div>
+      <div class="small">Projeto desenvolvido para fins acadêmicos · What's Person?</div>
+    </footer>
+  </div>
+
+  <!-- MÚSICA DE FUNDO: substitua src por um URL válido ou arquivo local 'assets/relaxing-music.mp3' -->
+  <audio id="bgMusic" loop>
+    <!-- Por padrão deixamos sem src — o autor do projeto deve colocar um arquivo -->
+    <!-- <source src="assets/relaxing-music.mp3" type="audio/mp3"> -->
+    Seu navegador não suporta áudio.
+  </audio>
+
+  <!-- ===== JAVASCRIPT ===== -->
+  <script>
+    /* =========================
+       DESCRIÇÃO GERAL (em português)
+       - Este script controla todo o jogo: start, rodadas (15), embaralhamento de imagens,
+         registro de escolhas, análise final (mapeamento de tags -> perfil), relatório,
+         envio por e-mail (instruções para EmailJS fornecidas mais abaixo) e UI.
+       - Comentários explicam cada bloco.
+       ========================= */
+
+    // ----- Configurações e banco de imagens (substitua URLs se desejar) -----
+    // Cada imagem tem um 'id', 'url' e 'tags' (cada tag contribui para um traço).
+    // As tags são palavras de traço psicológico simplificado (ex: "criativo", "analítico", ...).
+    // No final, somamos as tags escolhidas para gerar o perfil.
+    const IMAGE_POOL = [
+      // OBS: troque/adicione URLs reais (Unsplash / Pixabay / imagens próprias) conforme desejar.
+      {id:1, url:"https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=900&q=60", tags:["calmo","introspectivo"]},
+      {id:2, url:"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=900&q=60", tags:["criativo","imaginativo"]},
+      {id:3, url:"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=60", tags:["aventuroso","extrovertido"]},
+      {id:4, url:"https://images.unsplash.com/photo-1517816428104-94f3a8f20d5d?auto=format&fit=crop&w=900&q=60", tags:["analítico","objetivo"]},
+      {id:5, url:"https://images.unsplash.com/photo-1505678261036-a3fcc5e884ee?auto=format&fit=crop&w=900&q=60", tags:["empático","afetuoso"]},
+      {id:6, url:"https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?auto=format&fit=crop&w=900&q=60", tags:["lúdico","brincalhão"]},
+      {id:7, url:"https://images.unsplash.com/photo-1456324504439-367cee3b3c32?auto=format&fit=crop&w=900&q=60", tags:["detalhista","preciso"]},
+      {id:8, url:"https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=60", tags:["sereno","paciente"]},
+      {id:9, url:"https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=900&q=60", tags:["ambicioso","decidido"]},
+      {id:10, url:"https://images.unsplash.com/photo-1517816743773-6e0fd518b4a6?auto=format&fit=crop&w=900&q=60", tags:["espiritual","reflexivo"]},
+      {id:11, url:"https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=900&q=60", tags:["social","comunicativo"]},
+      {id:12, url:"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=900&q=60", tags:["artístico","inovador"]},
+      {id:13, url:"https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=60", tags:["tranquilo","equilibrado"]},
+      {id:14, url:"https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=900&q=60", tags:["competitivo","energético"]},
+      {id:15, url:"https://images.unsplash.com/photo-1454165205744-3b78555e5572?auto=format&fit=crop&w=900&q=60", tags:["observador","curioso"]},
+      {id:16, url:"https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=900&q=60", tags:["acolhedor","colaborativo"]},
+      {id:17, url:"https://images.unsplash.com/photo-1518806118471-f28b20a1d79d?auto=format&fit=crop&w=900&q=60", tags:["espontâneo","flexível"]},
+      {id:18, url:"https://images.unsplash.com/photo-1506248891683-46b51b5b4b4a?auto=format&fit=crop&w=900&q=60", tags:["metódico","organizado"]},
+      {id:19, url:"https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=900&q=60", tags:["imaginativo","sonhador"]},
+      {id:20, url:"https://images.unsplash.com/photo-1445295029076-4c2f0cc2abf6?auto=format&fit=crop&w=900&q=60", tags:["determinado","resiliente"]}
+    ];
+
+    // Número de rodadas (escolhas) — conforme solicitado, 15.
+    const TOTAL_ROUNDS = 15;
+
+    // Estado do jogo
+    let state = {
+      email: "",
+      name: "",
+      round: 0,
+      selections: [], // armazena objetos da forma {imageId, tags}
+      usedImageIds: new Set()
+    };
+
+    // ----- Helpers -----
+    function $(sel){ return document.querySelector(sel); }
+    function $all(sel){ return document.querySelectorAll(sel); }
+
+    // Embaralha um array e retorna cópia
+    function shuffle(arr){
+      const a = arr.slice();
+      for(let i=a.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    // Seleciona duas imagens aleatórias e diferentes do pool, evitando reutilizar já usadas quando possível
+    function pickTwoUnique(){
+      // cria pool filtrado por imagens ainda não usadas (para variar ao longo do jogo)
+      let available = IMAGE_POOL.filter(img => !state.usedImageIds.has(img.id));
+      // se não houver suficientes disponíveis, permita reutilizar (reinicia o conjunto)
+      if(available.length < 2) available = IMAGE_POOL.slice();
+      const shuffled = shuffle(available);
+      const chosen = [shuffled[0], shuffled[1]];
+      // marca como usadas
+      chosen.forEach(img => state.usedImageIds.add(img.id));
+      return chosen;
+    }
+
+    // Atualiza progress bar UI
+    function updateProgress(){
+      const pct = Math.round((state.round / TOTAL_ROUNDS) * 100);
+      $("#progressBar").style.width = pct + "%";
+      $("#roundNum").textContent = Math.min(state.round+1, TOTAL_ROUNDS);
+    }
+
+    // ===== UI: iniciar jogo =====
+    $("#startBtn").addEventListener("click", () => {
+      // lê inputs
+      state.email = $("#email").value.trim();
+      state.name = $("#displayName").value.trim() || "Você";
+
+      // mostra saudação curta
+      $("#greet").textContent = `Olá, ${state.name}!`;
+
+      // esconde tela inicial, mostra jogo
+      $("#startScreen").style.display = "none";
+      $("#gameScreen").style.display = "block";
+
+      // iniciar música (se houver)
+      const music = document.getElementById("bgMusic");
+      try { music.play().catch(()=>{/* autoplay pode ser bloqueado; deixamos botão para controlar */}); } catch(e){}
+
+      // iniciar estado
+      state.round = 0;
+      state.selections = [];
+      state.usedImageIds = new Set();
+
+      // render primeira escolha
+      renderNextChoice();
+      updateProgress();
+    });
+
+    // Preview "Sobre nós"
+    $("#previewBtn").addEventListener("click", () => showAbout());
+
+    // Botão para pausar/reproduzir música
+    $("#pauseMusic").addEventListener("click", () => {
+      const m = document.getElementById("bgMusic");
+      if(m.paused){ m.play().catch(()=>{}); $("#pauseMusic").textContent = "Pause música"; }
+      else { m.pause(); $("#pauseMusic").textContent = "Reproduzir música"; }
+    });
+
+    // renderiza as duas imagens para o usuário escolher
+    function renderNextChoice(){
+      const container = $("#choicesContainer");
+      container.innerHTML = ""; // limpa
+      // se já completou as rodadas, mostra resultado
+      if(state.round >= TOTAL_ROUNDS){
+        showResult();
+        return;
+      }
+
+      // pega duas imagens aleatórias
+      const [a,b] = pickTwoUnique();
+
+      // cria os elementos de escolha (imagem + legenda opcional)
+      [a,b].forEach(img=>{
+        const div = document.createElement("div");
+        div.className = "choice cardlike";
+        div.innerHTML = `
+          <img src="${img.url}" alt="imagem ${img.id}" loading="lazy" />
+          <div class="caption muted">Clique para escolher</div>
+        `;
+        // clique seleciona
+        div.addEventListener("click", () => {
+          // registra seleção
+          state.selections.push({imageId:img.id, tags:img.tags});
+          state.round++;
+          updateProgress();
+          // renderiza próxima (ou resultado)
+          renderNextChoice();
+        });
+        container.appendChild(div);
+      });
+    }
+
+    // ===== Análise final =====
+    function analyzeSelections(){
+      // soma frequências de tags
+      const counter = {};
+      state.selections.forEach(sel=>{
+        sel.tags.forEach(t=>{
+          counter[t] = (counter[t] || 0) + 1;
+        });
+      });
+
+      // transforma em array ordenado por contagem decrescente
+      const ranked = Object.entries(counter).sort((a,b)=>b[1]-a[1]);
+
+      // pega top 3 traços
+      const top = ranked.slice(0,3).map(r=>r[0]);
+
+      // mapeamento de perfis simplificado (exemplo): combinamos tags para um rótulo mais amplo
+      const profileScores = {
+        "Introvertido Calmo": (counter["calmo"]||0) + (counter["introspectivo"]||0) + (counter["sereno"]||0),
+        "Criativo / Imaginativo": (counter["criativo"]||0) + (counter["imaginativo"]||0) + (counter["artístico"]||0),
+        "Extrovertido / Social": (counter["extrovertido"]||0) + (counter["social"]||0) + (counter["comunicativo"]||0),
+        "Analítico / Organizado": (counter["analítico"]||0) + (counter["metódico"]||0) + (counter["organizado"]||0),
+        "Empático / Acolhedor": (counter["empático"]||0) + (counter["acolhedor"]||0),
+        "Aventureiro / Energético": (counter["aventuroso"]||0) + (counter["competitivo"]||0) + (counter["energético"]||0)
+      };
+
+      // escolhe perfil com maior pontuação
+      const bestProfile = Object.entries(profileScores).sort((a,b)=>b[1]-a[1])[0];
+
+      // cria resumo psicológico com base nos traços
+      let summary = "";
+      if(!bestProfile || bestProfile[1] === 0){
+        summary = "Seu padrão de escolhas sugere um perfil equilibrado, com inclinações variadas. Você provavelmente aprecia diversidade e não se identifica fortemente com um único estilo.";
+      } else {
+        const profileName = bestProfile[0];
+        const explanation = generateProfileExplanation(profileName, top);
+        summary = explanation;
+      }
+
+      return { counter, ranked, top, summary };
+    }
+
+    // Gera texto descritivo para cada perfil (baseado em psicologia popular — não substitui avaliação profissional)
+    function generateProfileExplanation(profileName, topTraits){
+      // explicações curtas para cada perfil
+      const explanations = {
+        "Introvertido Calmo": `Seu padrão indica preferência por calma, reflexão e profundidade. Pessoas com esse perfil costumam recarregar em ambientes tranquilos, valorizam a introspecção e têm forte consciência emocional. Traços principais: ${topTraits.join(", ")}.`,
+        "Criativo / Imaginativo": `Você tende a ver o mundo com imaginação e originalidade. Gosta de novação, aprecia estética e frequentemente resolve problemas com soluções não convencionais. Traços principais: ${topTraits.join(", ")}.`,
+        "Extrovertido / Social": `Você se energiza com interação social e experiências dinâmicas. Provavelmente se comunica com facilidade e busca conexão com grupos. Traços principais: ${topTraits.join(", ")}.`,
+        "Analítico / Organizado": `Você valoriza ordem, precisão e lógica. Raciocínio estruturado e atenção ao detalhe são pontos fortes — ótimo em tarefas que exigem planejamento. Traços principais: ${topTraits.join(", ")}.`,
+        "Empático / Acolhedor": `Prioriza relações e suporte emocional. Sua sensibilidade faz de você um bom ouvinte e mediador. Traços principais: ${topTraits.join(", ")}.`,
+        "Aventureiro / Energético": `Busca novidade e ação. Gosta de desafios, mudança e atividades que testem seus limites. Traços principais: ${topTraits.join(", ")}.`
+      };
+      return explanations[profileName] || `Perfil: ${profileName}. Traços: ${topTraits.join(", ")}.`;
+    }
+
+    // Mostra resultado na UI
+    function showResult(){
+      // oculta jogo, mostra resultado
+      $("#gameScreen").style.display = "none";
+      $("#resultScreen").style.display = "block";
+
+      const analysis = analyzeSelections();
+
+      // popula tags e resumo
+      const tagsDiv = $("#resultTags");
+      tagsDiv.innerHTML = "";
+      // mostra top 4 traços
+      analysis.ranked.slice(0,4).forEach(([tag,count])=>{
+        const span = document.createElement("div");
+        span.className = "tag";
+        span.textContent = `${tag} × ${count}`;
+        tagsDiv.appendChild(span);
+      });
+
+      $("#resultSummary").textContent = analysis.summary;
+    }
+
+    // Botões do resultScreen
+    $("#retryBtn").addEventListener("click", () => {
+      // reinicia para refazer o teste
+      $("#resultScreen").style.display = "none";
+      $("#startScreen").style.display = "block";
+      // opcional: limpa campos (mantém e-mail e nome)
+    });
+
+    $("#aboutBtn").addEventListener("click", showAbout);
+    $("#closeAbout").addEventListener("click", () => { $("#aboutModal").style.display = "none"; });
+
+    // Prepara texto do sobre nós (usamos o conteúdo que você pediu)
+    const aboutText = `
+      <strong>What's Person?</strong><br>
+      Este projeto foi desenvolvido como atividade acadêmica para o curso de Pedagogia. 
+      O objetivo é oferecer uma experiência interativa que permite que o usuário explore 
+      aspectos de sua personalidade por meio de escolhas visuais. O relatório final 
+      apresenta um resumo interpretativo baseado nas imagens escolhidas — uma aproximação 
+      inspirada em conceitos psicológicos, mas que não substitui uma avaliação profissional.
+      <br><br>
+      Autora: Erica Santos — Graduanda em Pedagogia, Natal RN.
+    `;
+    $("#aboutText").textContent = ""; // evita injeção cruza de HTML — mas queremos mostrar HTML
+    document.getElementById("aboutText").innerHTML = aboutText;
+
+    function showAbout(){
+      // exibe a seção modal de sobre nós
+      $("#aboutModal").style.display = "block";
+      // se estamos no resultado, não escondemos — é complementar
+    }
+
+    // ===== Relatório e envio de e-mail =====
+    // Gera texto do relatório baseado nas escolhas e análise
+    function generateReportText(){
+      const analysis = analyzeSelections();
+      const lines = [];
+      lines.push(`What's Person? — Relatório de personalidade`);
+      lines.push(`Nome: ${state.name}`);
+      lines.push(`E-mail (informado): ${state.email || "não informado"}`);
+      lines.push(`Data: ${new Date().toLocaleString()}`);
+      lines.push("");
+      lines.push("Traços detectados (frequência):");
+      Object.entries(analysis.counter || {}).forEach(([tag,count])=>{
+        lines.push(`- ${tag}: ${count}`);
+      });
+      lines.push("");
+      lines.push("Resumo interpretativo:");
+      lines.push(analysis.summary);
+      lines.push("");
+      lines.push("Observações: Este relatório é uma interpretação geral baseada nas escolhas visuais. Para análise clínica, procure um psicólogo qualificado.");
+      return lines.join("\n");
+    }
+
+    // Botão baixar relatório (gera arquivo TXT)
+    $("#downloadBtn").addEventListener("click", () => {
+      const text = generateReportText();
+      const blob = new Blob([text], {type:"text/plain;charset=utf-8"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `whats-person-relatorio-${(state.name||"usuario").replace(/\s+/g,"_")}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    // Botão enviar e-mail — tentamos EmailJS (se configurado), senão fallback para mailto
+    $("#sendEmailBtn").addEventListener("click", () => {
+      const email = state.email;
+      const reportText = generateReportText();
+
+      if(!email){
+        // sem e-mail informado — informar usuário
+        if(!confirm("Você não informou um e-mail. Deseja abrir o cliente de e-mail para enviar o relatório manualmente?")) return;
+      }
+
+      // A) EmailJS (CLIENT-side). Para usar:
+      // 1) Crie conta em https://www.emailjs.com
+      // 2) Crie um serviço de e-mail (ex: Gmail/SMTP) e um template com campo 'message'
+      // 3) Substitua os valores abaixo (YOUR_SERVICE_ID, YOUR_TEMPLATE_ID, YOUR_PUBLIC_KEY)
+      // 4) Descomente o bloco abaixo (código de envio).
+      //
+      // Exemplo de integração (comentar/descomentar quando tiver IDs):
+      /*
+      (function(){
+        // Carregar SDK EmailJS dinamicamente (se ainda não carregado)
+        if(typeof emailjs === "undefined"){
+          const s = document.createElement("script");
+          s.src = "https://cdn.emailjs.com/sdk/3.2.0/email.min.js";
+          s.onload = () => {
+            emailjs.init("YOUR_PUBLIC_KEY"); // substituir
+            // enviar
+            emailjs.send("YOUR_SERVICE_ID","YOUR_TEMPLATE_ID",{
+              to_email: state.email,
+              to_name: state.name,
+              message: reportText
+            }).then(() => alert("Relatório enviado por e-mail!"), (err)=> alert("Falha ao enviar: "+err.text));
+          };
+          document.body.appendChild(s);
+        } else {
+          emailjs.init("YOUR_PUBLIC_KEY");
+          emailjs.send("YOUR_SERVICE_ID","YOUR_TEMPLATE_ID",{
+            to_email: state.email,
+            to_name: state.name,
+            message: reportText
+          }).then(()=>alert("Relatório enviado por e-mail!"), (err)=> alert("Falha ao enviar: "+err.text));
+        }
+      })();
+      return;
+      */
+
+      // B) Fallback: abrir cliente de e-mail com mailto: (pré-preenche corpo e assunto)
+      // Observação: mailto tem limite de tamanho e depende do cliente do usuário.
+      const subject = encodeURIComponent("Relatório — What's Person?");
+      const body = encodeURIComponent(reportText);
+      // caso tenha email informado, preenche "to", caso contrário apenas abre o body para copiar/colar
+      const mailto = (email ? `mailto:${encodeURIComponent(email)}?subject=${subject}&body=${body}` : `mailto:?subject=${subject}&body=${body}`);
+      window.location.href = mailto;
+    });
+
+    // ===== Inicialização =====
+    // (1) Preencha a fonte de música: se você quiser que o site toque uma faixa de fundo automaticamente,
+    //     coloque um arquivo em /assets/relaxing-music.mp3 e descomente a linha abaixo:
+    //
+    // document.getElementById("bgMusic").src = "assets/relaxing-music.mp3";
+    //
+    // (2) Se preferir usar URL online (ex: mp3 hospedado) coloque o link em src.
+    //
+    // Aviso sobre autoplay: muitos navegadores bloqueiam autoplay com som — por isso há botão para pausar/reproduzir.
+    //
+    // ===== FIM =====
+
+    // Opcional: definir um arquivo de música padrão (comentado por padrão)
+    // document.getElementById("bgMusic").src = "assets/relaxing-music.mp3";
+
+  </script>
+</body>
+</html>

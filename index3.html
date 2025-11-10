@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What's Person? 👤</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👤</text></svg>">
+    <style>
+        /* Paleta de Cores Terapêuticas
+   --calm-blue: Azul Sereno (Fundo)
+   --mint-green: Verde Menta (Acento Principal)
+   --soft-grey: Cinza Suave (Textos)
+   --white: Branco Puro
+*/
+:root {
+    --calm-blue: #e8f5e9; /* Quase um verde água/menta muito claro */
+    --mint-green: #4CAF50; /* Acento, Verde da Esperança/Natureza */
+    --soft-grey: #616161;
+    --dark-text: #212121;
+    --white: #ffffff;
+    --shadow-light: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Reset básico e tipografia */
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--calm-blue); /* Fundo sereno */
+    color: var(--dark-text);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ocupa a altura total */
+}
+
+/* Container Principal e Telas */
+.container {
+    flex-grow: 1; /* Permite que o container principal ocupe o espaço extra */
+    max-width: 900px;
+    width: 95%;
+    margin: 20px auto;
+    padding: 30px;
+    background-color: var(--white);
+    border-radius: 15px;
+    box-shadow: var(--shadow-light);
+    text-align: center;
+}
+
+.screen {
+    display: none; /* Esconde todas as telas por padrão */
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    padding: 20px 0;
+}
+
+.screen.active {
+    display: block; /* A tela ativa é exibida */
+    opacity: 1;
+}
+
+/* Títulos */
+h1 {
+    color: var(--mint-green);
+    font-size: 2.5em;
+    margin-bottom: 5px;
+}
+
+h2 {
+    color: var(--dark-text);
+    border-bottom: 2px solid var(--calm-blue);
+    padding-bottom: 10px;
+}
+
+/* Formulário de Início */
+#start-form {
+    display: flex;
+    flex-direction: column;
+    max-width: 400px;
+    margin: 20px auto;
+    text-align: left;
+}
+
+label {
+    margin-top: 10px;
+    font-weight: bold;
+    color: var(--soft-grey);
+}
+
+input[type="text"], input[type="email"] {
+    padding: 12px;
+    margin-top: 5px;
+    border: 1px solid var(--calm-blue);
+    border-radius: 8px;
+    font-size: 1em;
+    transition: border-color 0.3s;
+}
+
+input:focus {
+    border-color: var(--mint-green);
+    outline: none;
+}
+
+.start-button, .action-button {
+    background-color: var(--mint-green);
+    color: var(--white);
+    padding: 15px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    transition: background-color 0.3s, transform 0.1s;
+    font-weight: bold;
+}
+
+.start-button:hover, .action-button:hover {
+    background-color: #388E3C; /* Verde mais escuro no hover */
+    transform: translateY(-2px);
+}
+
+.action-button.secondary {
+    background-color: #9E9E9E; /* Cinza para botão secundário */
+    margin-left: 10px;
+}
+
+.action-button.secondary:hover {
+    background-color: #757575;
+}
+
+.email-note {
+    font-size: 0.8em;
+    color: var(--soft-grey);
+    margin-top: 10px;
+}
+
+/* Tela do Jogo (Escolhas) */
+.progress-indicator {
+    color: var(--soft-grey);
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.choices-container {
+    display: flex;
+    justify-content: space-around;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.choice {
+    flex: 1;
+    max-width: 45%;
+    cursor: pointer;
+    padding: 10px;
+    border: 3px solid transparent;
+    border-radius: 12px;
+    transition: all 0.3s;
+    background-color: var(--calm-blue);
+}
+
+.choice:hover {
+    border-color: var(--mint-green);
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.4);
+}
+
+.choice img {
+    width: 100%;
+    height: auto;
+    min-height: 200px; /* Garante um tamanho mínimo */
+    object-fit: cover; /* Garante que a imagem cubra a área sem distorção */
+    border-radius: 8px;
+    display: block;
+}
+
+.choice-label {
+    margin-top: 10px;
+    font-weight: bold;
+    color: var(--dark-text);
+}
+
+/* Tela de Resultado e Sobre Nós */
+#result-screen h3, #about-screen h3 {
+    color: var(--mint-green);
+    font-size: 1.8em;
+    margin-top: 10px;
+}
+
+.result-summary, .about-content {
+    text-align: left;
+    margin: 20px auto;
+    padding: 20px;
+    border-left: 5px solid var(--mint-green);
+    background-color: var(--calm-blue);
+    border-radius: 5px;
+}
+
+.result-summary h4 {
+    margin-top: 0;
+    color: var(--dark-text);
+}
+
+/* Rodapé */
+.footer {
+    padding: 15px 0;
+    text-align: center;
+    background-color: var(--mint-green); /* Cor que "casa" */
+    color: var(--white);
+    font-size: 0.9em;
+    margin-top: auto; /* Empurra o rodapé para o final da página */
+}
+
+.footer p {
+    margin: 3px 0;
+}
+
+.footer strong {
+    font-weight: bold;
+}
+
+/* Media Queries para Responsividade */
+@media (max-width: 600px) {
+    .container {
+        padding: 20px 10px;
+    }
+
+    .choices-container {
+        flex-direction: column; /* Pilha as imagens em telas menores */
+    }
+
+    .choice {
+        max-width: 100%;
+    }
+
+    .choice img {
+        min-height: 150px;
+    }
+
+    .start-button {
+        padding: 12px;
+        font-size: 1em;
+    }
+
+    .action-button {
+        display: block;
+        width: 100%;
+        margin-top: 10px;
+        margin-left: 0 !important;
+    }
+}
+        </style>
+</head>
+<body>
+
+    <audio id="background-music" loop autoplay muted>
+        <source src="relax_music.mp3" type="audio/mpeg">
+        Seu navegador não suporta o elemento de áudio.
+    </audio>
+
+    <main class="container">
+
+        <section id="start-screen" class="screen active">
+            <h1>What's Person? 👤</h1>
+            <p>Descubra o seu perfil de personalidade através de escolhas intuitivas.</p>
+            
+            <form id="start-form">
+                <label for="user-name">Como você quer ser chamada(o)?</label>
+                <input type="text" id="user-name" required placeholder="Seu nome ou apelido">
+
+                <label for="user-email">Seu melhor e-mail:</label>
+                <input type="email" id="user-email" required placeholder="Para o relatório final">
+
+                <button type="submit" class="start-button">Começar o Teste</button>
+                <p class="email-note">Seu e-mail está seguro. Não enviamos spam. (Recurso de envio simulado)</p>
+            </form>
+        </section>
+
+        <section id="game-screen" class="screen">
+            <h2 id="question-title"></h2>
+            <p class="progress-indicator"><span id="current-step">0</span> de <span id="total-steps">15</span> escolhas</p>
+            
+            <div class="choices-container">
+                <div class="choice" data-choice="1">
+                    <img id="image-1" alt="Opção de personalidade 1">
+                    <p class="choice-label">Escolha 1</p>
+                </div>
+
+                <div class="choice" data-choice="2">
+                    <img id="image-2" alt="Opção de personalidade 2">
+                    <p class="choice-label">Escolha 2</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="result-screen" class="screen">
+            <h2>🎉 Seu Perfil de Personalidade</h2>
+            <h3 id="result-type"></h3>
+            
+            <div class="result-summary">
+                <h4>O que isso significa?</h4>
+                <p id="result-description"></p>
+                </div>
+            
+            <button id="restart-button" class="action-button">Refazer Teste</button>
+            <button id="about-us-button" class="action-button secondary">Sobre Nós e Projeto</button>
+        </section>
+
+        <section id="about-screen" class="screen">
+            <h2>📜 Sobre o Projeto Acadêmico</h2>
+            <div class="about-content">
+                <p>O <strong>"What's Person?"</strong> é um projeto desenvolvido com o objetivo de explorar a intersecção entre a tecnologia (desenvolvimento web) e a **Psicologia das Cores e da Percepção**. Utiliza escolhas visuais intuitivas para mapear preferências e tendências, oferecendo um resumo simplificado de traços de personalidade.</p>
+                <p><strong>Base Psicológica (Simulada):</strong> O teste se baseia na premissa de que a **resposta imediata e não-verbal** a estímulos visuais (cores, formas e cenários) pode revelar aspectos inconscientes da personalidade. Cada escolha de imagem é associada a um "traço" psicológico (ex: Abertura, Extroversão, Conscienciosidade), e a frequência desses traços constrói o perfil final, seguindo uma lógica simplificada e atrativa para fins de demonstração.</p>
+                <p>Este é um projeto com fins **puramente acadêmicos** e de entretenimento, não substituindo uma avaliação psicológica profissional.</p>
+            </div>
+            <button id="back-to-result" class="action-button secondary">Voltar ao Resultado</button>
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        <p>Desenvolvido para **Fins Acadêmicos** | Feito por **Erica Santos**</p>
+        <p>Graduanda em Pedagogia, Natal RN</p>
+    </footer>
+
+    <script>
+        // --- DADOS DO JOGO (Simulando um Banco de Dados) ---
+
+// Mapeamento de traços de personalidade.
+// Traços de exemplo: A = Aventureiro, R = Racional, C = Criativo, S = Social, P = Pacífico.
+const personalityData = [
+    // 15 Passos para o teste
+    { 
+        question: "Qual ambiente te atrai mais neste momento?",
+        images: [
+            { src: 'https://picsum.photos/400/300?random=1', trait: 'P' }, // Paisagem calma (Pacífico)
+            { src: 'https://picsum.photos/400/300?random=2', trait: 'A' }  // Cenário de aventura (Aventureiro)
+        ] 
+    },
+    { 
+        question: "Qual objeto reflete melhor sua mentalidade?",
+        images: [
+            { src: 'https://picsum.photos/400/300?random=3', trait: 'R' }, // Livro/Telescópio (Racional)
+            { src: 'https://picsum.photos/400/300?random=4', trait: 'C' }  // Tinta/Pincel (Criativo)
+        ] 
+    },
+    { 
+        question: "Qual cor te traz mais energia?",
+        images: [
+            { src: 'https://picsum.photos/400/300?random=5', trait: 'S' }, // Cor vibrante (Social)
+            { src: 'https://picsum.photos/400/300?random=6', trait: 'P' }  // Cor neutra (Pacífico)
+        ] 
+    },
+    // Adicione mais 12 perguntas (total de 15) para um teste mais completo
+    // *DICA: Use o 'https://picsum.photos/400/300?random=NUMERO' para imagens aleatórias*
+    { 
+        question: "Qual atividade você escolheria para um dia livre?",
+        images: [
+            { src: 'https://picsum.photos/400/300?random=7', trait: 'A' }, 
+            { src: 'https://picsum.photos/400/300?random=8', trait: 'R' } 
+        ] 
+    },
+    { 
+        question: "Qual tipo de arquitetura te inspira?",
+        images: [
+            { src: 'https://picsum.photos/400/300?random=9', trait: 'C' }, 
+            { src: 'https://picsum.photos/400/300?random=10', trait: 'S' } 
+        ] 
+    },
+    { 
+        question: "Qual elemento natural te representa?",
+        images: [
+            { src: 'https://picsum.photos/400/300?random=11', trait: 'P' }, 
+            { src: 'https://picsum.photos/400/300?random=12', trait: 'A' } 
+        ] 
+    },
+    { 
+        question: "Qual tipo de refeição você prefere?",
+        images: [
+            { src: 'https://picsum.photos/400/300?random=13', trait: 'R' }, 
+            { src: 'https://picsum.photos/400/300?random:14', trait: 'C' } 
+        ] 
+    },
+    { 
+        question: "Como você prefere passar uma noite de sexta-feira?",
+        images: [
+            { src: 'https://picsum.photos/400/300?random=15', trait: 'S' }, 
+            { src: 'https://picsum.photos/400/300?random=16', trait: 'P' } 
+        ] 
+    },
+    { 
+        question: "Qual tipo de arte te chama mais atenção?",
+        images: [
+            { src: 'https://picsum.photos/400/300?random=17', trait: 'C' }, 
+            { src: 'https://picsum.photos/400/300?random=18', trait: 'A' } 
+        ] 
+    },
+    { 
+        question: "Qual meio de transporte te parece mais ideal?",
+        images: [
+            { src: 'https://picsum.photos/400/300?random=19', trait: 'R' }, 
+            { src: 'https://picsum.photos/400/300?random=20', trait: 'S' } 
+        ] 
+    },
+    { 
+        question: "Qual paisagem urbana te agrada?",
+        images: [
+            { src: 'https://picsum.photos/400/300?random=21', trait: 'P' }, 
+            { src: 'https://picsum.photos/400/300?random=22', trait: 'C' } 
+        ] 
+    },
+    { 
+        question: "Qual instrumento musical você gostaria de tocar?",
+        images: [
+            { src: 'https://picsum.photos/400/300?random=23', trait: 'S' }, 
+            { src: 'https://picsum.photos/400/300?random=24', trait: 'A' } 
+        ] 
+    },
+    { 
+        question: "Qual estilo de design de interiores você prefere?",
+        images: [
+            { src: 'https://picsum.photos/400/300?random=25', trait: 'R' }, 
+            { src: 'https://picsum.photos/400/300?random=26', trait: 'P' } 
+        ] 
+    },
+    { 
+        question: "Qual tipo de desafio você abraça?",
+        images: [
+            { src: 'https://picsum.photos/400/300?random=27', trait: 'A' }, 
+            { src: 'https://picsum.photos/400/300?random=28', trait: 'S' } 
+        ] 
+    },
+    { 
+        question: "Qual tipo de objeto de decoração você adicionaria à sua casa?",
+        images: [
+            { src: 'https://picsum.photos/400/300?random=29', trait: 'C' }, 
+            { src: 'https://picsum.photos/400/300?random=30', trait: 'R' } 
+        ] 
+    }
+];
+
+// Definição dos perfis de personalidade com base nos traços
+const personalityProfiles = {
+    'P': {
+        name: 'O Pacificador Sereno 🕊️',
+        description: 'Você é guiado(a) por uma profunda necessidade de **harmonia e paz interior**. Sua natureza é calma, e você valoriza ambientes serenos e a contemplação. Tende a ser empático(a) e evita conflitos, buscando o equilíbrio em todas as áreas da vida. A cor azul e as paisagens naturais te recarregam. **Traços chave:** Calmante, Meditativo, Empático.'
+    },
+    'A': {
+        name: 'O Aventureiro Destemido ⛰️',
+        description: 'Você possui uma alma **curiosa e indomável**, sempre em busca da próxima grande experiência. É proativo(a), adora desafios e se sente mais vivo(a) quando está explorando o desconhecido. A mudança não te assusta, pelo contrário, te motiva. **Traços chave:** Audacioso, Otimista, Explorador.'
+    },
+    'R': {
+        name: 'O Analista Racional 🧠',
+        description: 'Sua mente é sua ferramenta mais poderosa. Você aborda o mundo com **lógica, organização e análise metódica**. Valoriza a clareza, a precisão e a resolução de problemas complexos. Você se sente confortável com dados e fatos, e menos com a espontaneidade. **Traços chave:** Lógico, Estruturado, Observador.'
+    },
+    'C': {
+        name: 'O Criativo Visionário ✨',
+        description: 'Você enxerga o mundo através de lentes de **inovação e expressão artística**. Sua imaginação é fértil e você busca constantemente formas de dar vida às suas ideias. A rotina te cansa; você floresce na liberdade e na originalidade. **Traços chave:** Imaginativo, Expressivo, Inovador.'
+    },
+    'S': {
+        name: 'O Conectador Social 🤝',
+        description: 'Sua energia é voltada para as **pessoas e interações**. Você é caloroso(a), comunicativo(a) e encontra satisfação em construir e manter laços sociais fortes. É frequentemente o centro das atenções, pois sua presença é vibrante e acolhedora. **Traços chave:** Extrovertido, Carismático, Empático (na esfera social).'
+    }
+};
+
+// --- VARIÁVEIS DE ESTADO DO JOGO ---
+let currentStep = 0; // Contador da pergunta atual
+let userChoices = []; // Array para armazenar os traços escolhidos pelo usuário
+let userData = {}; // Objeto para armazenar nome e e-mail
+let shuffledQuestions = []; // Array para armazenar a ordem aleatória das perguntas
+
+// --- REFERÊNCIAS DOM (Document Object Model) ---
+const startScreen = document.getElementById('start-screen');
+const gameScreen = document.getElementById('game-screen');
+const resultScreen = document.getElementById('result-screen');
+const aboutScreen = document.getElementById('about-screen');
+
+const startForm = document.getElementById('start-form');
+const userNameInput = document.getElementById('user-name');
+const userEmailInput = document.getElementById('user-email');
+const questionTitle = document.getElementById('question-title');
+const currentStepSpan = document.getElementById('current-step');
+const totalStepsSpan = document.getElementById('total-steps');
+const image1 = document.getElementById('image-1');
+const image2 = document.getElementById('image-2');
+const choices = document.querySelectorAll('.choice');
+const resultTypeH3 = document.getElementById('result-type');
+const resultDescriptionP = document.getElementById('result-description');
+const restartButton = document.getElementById('restart-button');
+const aboutUsButton = document.getElementById('about-us-button');
+const backToResultButton = document.getElementById('back-to-result');
+const backgroundMusic = document.getElementById('background-music');
+
+// Garante que o número total de passos seja o tamanho do array de dados
+totalStepsSpan.textContent = personalityData.length;
+
+
+// --- FUNÇÕES AUXILIARES ---
+
+/**
+ * Embaralha um array (Algoritmo de Fisher-Yates).
+ * Usado para garantir que as perguntas sejam aleatórias a cada acesso.
+ * @param {Array} array - O array a ser embaralhado.
+ * @returns {Array} O array embaralhado.
+ */
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]]; // Troca elementos
+    }
+    return array;
+}
+
+/**
+ * Exibe uma tela e esconde todas as outras.
+ * @param {HTMLElement} screenToShow - A tela (section) que deve ser exibida.
+ */
+function showScreen(screenToShow) {
+    // Lista de todas as telas
+    const allScreens = [startScreen, gameScreen, resultScreen, aboutScreen];
+    
+    // Esconde todas as telas
+    allScreens.forEach(screen => {
+        screen.classList.remove('active');
+    });
+
+    // Exibe a tela desejada
+    screenToShow.classList.add('active');
+}
+
+/**
+ * Carrega a pergunta atual (passo) na tela do jogo.
+ */
+function loadQuestion() {
+    // Verifica se o teste terminou
+    if (currentStep >= shuffledQuestions.length) {
+        // Se sim, mostra o resultado
+        showResult();
+        return;
+    }
+
+    // Acessa o objeto da pergunta atual no array embaralhado
+    const currentQuestion = shuffledQuestions[currentStep];
+
+    // Atualiza o título da pergunta e o progresso
+    questionTitle.textContent = currentQuestion.question;
+    currentStepSpan.textContent = currentStep + 1; // +1 para ser 1-based
+
+    // Embaralha as duas imagens da pergunta atual para aleatoriedade
+    shuffleArray(currentQuestion.images); 
+
+    // Popula as imagens e seus traços (que serão lidos pelo event listener)
+    image1.src = currentQuestion.images[0].src;
+    image1.parentNode.setAttribute('data-trait', currentQuestion.images[0].trait);
+
+    image2.src = currentQuestion.images[1].src;
+    image2.parentNode.setAttribute('data-trait', currentQuestion.images[1].trait);
+}
+
+
+// --- LÓGICA DO JOGO ---
+
+/**
+ * Inicia o jogo após a coleta de dados.
+ */
+function startGame() {
+    // 1. Coleta dados do formulário
+    userData.name = userNameInput.value;
+    userData.email = userEmailInput.value;
+
+    // 2. Notifica o usuário sobre o e-mail (simulação)
+    alert(`Obrigado(a), ${userData.name}! Seu relatório final (simulado) será enviado para ${userData.email}.`);
+
+    // 3. Reseta o estado do jogo
+    currentStep = 0;
+    userChoices = [];
+
+    // 4. Embaralha as perguntas para esta sessão
+    shuffledQuestions = shuffleArray([...personalityData]);
+
+    // 5. Inicia a música (desmutando)
+    backgroundMusic.muted = false;
+    backgroundMusic.play().catch(error => {
+        console.log("Erro ao tentar tocar a música automaticamente:", error);
+        // Pode ser necessário um clique extra para alguns navegadores
+    });
+
+    // 6. Carrega a primeira pergunta e exibe a tela do jogo
+    loadQuestion();
+    showScreen(gameScreen);
+}
+
+/**
+ * Processa a escolha da imagem pelo usuário.
+ * @param {Event} event - O evento de clique.
+ */
+function handleChoice(event) {
+    // Encontra o elemento que tem o atributo 'data-trait' (pode ser o div ou o img)
+    const chosenElement = event.currentTarget.getAttribute('data-trait') ? event.currentTarget : event.currentTarget.closest('.choice');
+    
+    // Obtém o traço de personalidade associado à imagem
+    const chosenTrait = chosenElement.getAttribute('data-trait');
+    
+    // Armazena a escolha
+    userChoices.push(chosenTrait);
+
+    // Avança para o próximo passo
+    currentStep++;
+
+    // Carrega a próxima pergunta ou mostra o resultado
+    loadQuestion();
+}
+
+/**
+ * Analisa as escolhas e determina o resultado final.
+ */
+function showResult() {
+    // 1. Conta a frequência de cada traço escolhido
+    const traitCounts = userChoices.reduce((acc, trait) => {
+        acc[trait] = (acc[trait] || 0) + 1;
+        return acc;
+    }, {});
+
+    // 2. Encontra o traço mais frequente
+    let maxCount = 0;
+    let finalTrait = 'R'; // Padrão se não houver escolhas (impossível no código atual)
+
+    for (const trait in traitCounts) {
+        if (traitCounts[trait] > maxCount) {
+            maxCount = traitCounts[trait];
+            finalTrait = trait;
+        }
+    }
+    
+    // 3. Obtém o perfil de personalidade
+    const finalProfile = personalityProfiles[finalTrait] || personalityProfiles['R']; // Fallback
+    
+    // 4. Exibe o resultado na tela
+    resultTypeH3.textContent = finalProfile.name.replace('🕊️', '').replace('⛰️', '').replace('🧠', '').replace('✨', '').replace('🤝', ''); // Limpa emojis para o nome puro
+    resultDescriptionP.innerHTML = `Olá, **${userData.name}**, seu perfil dominante é o **${finalProfile.name}**.<br><br>${finalProfile.description}`;
+
+    // 5. Muda para a tela de resultado
+    showScreen(resultScreen);
+}
+
+/**
+ * Reinicia o jogo
+ */
+function restartGame() {
+    // Volta para a tela inicial
+    showScreen(startScreen);
+    // Para a música (opcional, mas bom para reset)
+    backgroundMusic.pause();
+    backgroundMusic.currentTime = 0;
+}
+
+
+// --- EVENT LISTENERS ---
+
+// 1. Listener para o envio do formulário inicial
+startForm.addEventListener('submit', function(e) {
+    e.preventDefault(); // Impede o envio tradicional do formulário
+    startGame();
+});
+
+// 2. Listeners para os cliques de escolha de imagem
+choices.forEach(choice => {
+    choice.addEventListener('click', handleChoice);
+});
+
+// 3. Listeners para os botões da tela de resultado
+restartButton.addEventListener('click', restartGame);
+
+aboutUsButton.addEventListener('click', function() {
+    showScreen(aboutScreen);
+});
+
+backToResultButton.addEventListener('click', function() {
+    showScreen(resultScreen);
+});
+
+// --- INICIALIZAÇÃO ---
+document.addEventListener('DOMContentLoaded', () => {
+    // Garante que a tela inicial esteja ativa ao carregar
+    showScreen(startScreen);
+
+    // Tenta mutar a música inicialmente para que o autoplay funcione em mais navegadores
+    backgroundMusic.muted = true;
+});
+    </script>
+</body>
+</html>
